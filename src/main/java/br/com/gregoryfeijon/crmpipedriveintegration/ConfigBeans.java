@@ -1,5 +1,6 @@
 package br.com.gregoryfeijon.crmpipedriveintegration;
 
+import br.com.gregoryfeijon.crmpipedriveintegration.properties.PipedriveProperties;
 import br.com.gregoryfeijon.crmpipedriveintegration.security.properties.JwtProperties;
 import br.com.gregoryfeijon.crmpipedriveintegration.util.RestTemplateResponseErrorHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,27 +20,33 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class ConfigBeans {
 
-    @Autowired
-    private RestTemplateResponseErrorHandler errorHandler;
+	@Autowired
+	private RestTemplateResponseErrorHandler errorHandler;
 
-    /**
-     * Bean de configuração do RestTemplate, para definir a forma que os erros serão
-     * tratados, bem como modificar o RequestFactory, para poder trabalhar de forma
-     * mais livre com a ResponseEntity.
-     *
-     * @param builder - {@linkplain RestTemplateBuilder}
-     * @return {@linkplain RestTemplate}
-     */
-    @Bean
-    public RestTemplate restTemplate(RestTemplateBuilder builder) {
-        RestTemplate restTemplate = builder.errorHandler(errorHandler).build();
-        restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
-        return restTemplate;
-    }
+	/**
+	 * Bean de configuração do RestTemplate, para definir a forma que os erros serão
+	 * tratados, bem como modificar o RequestFactory, para poder trabalhar de forma
+	 * mais livre com a ResponseEntity.
+	 *
+	 * @param builder - {@linkplain RestTemplateBuilder}
+	 * @return {@linkplain RestTemplate}
+	 */
+	@Bean
+	public RestTemplate restTemplate(RestTemplateBuilder builder) {
+		RestTemplate restTemplate = builder.errorHandler(errorHandler).build();
+		restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+		return restTemplate;
+	}
 
-    @Bean
-    @ConfigurationProperties(prefix = "jwt-prop")
-    public JwtProperties jwtProperties() {
-        return new JwtProperties();
-    }
+	@Bean
+	@ConfigurationProperties(prefix = "jwt-prop")
+	public JwtProperties jwtProperties() {
+		return new JwtProperties();
+	}
+
+	@Bean
+	@ConfigurationProperties(prefix = "pipedrive-prop")
+	public PipedriveProperties pipedriveProperties() {
+		return new PipedriveProperties();
+	}
 }
