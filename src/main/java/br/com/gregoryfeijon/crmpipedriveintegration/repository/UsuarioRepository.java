@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import br.com.gregoryfeijon.crmpipedriveintegration.exception.APIException;
 import br.com.gregoryfeijon.crmpipedriveintegration.model.Usuario;
 import br.com.gregoryfeijon.crmpipedriveintegration.util.GsonUtil;
+import br.com.gregoryfeijon.crmpipedriveintegration.util.ValidationHelpers;
 
 /**
  * 30/05/2021 às 17:07:20
@@ -35,7 +36,7 @@ public class UsuarioRepository extends FileRepository<Usuario> {
 			if (usuariosFile.exists() && usuariosFile.canWrite()) {
 				String usuariosJson = readFromFile(usuariosFile);
 				List<Usuario> usuarios = GSON_UTIL.fromJson(usuariosJson, returnType().getType());
-				usuarios.add(usuarioSalvar);
+				verificaUsuariosAtualizaExistente(usuarios, usuarioSalvar);
 				String jsonSalvar = GSON_UTIL.toJson(usuarios);
 				Files.write(usuariosFile.toPath(), jsonSalvar.getBytes("utf-8"), StandardOpenOption.WRITE);
 			}
@@ -43,6 +44,22 @@ public class UsuarioRepository extends FileRepository<Usuario> {
 			throw new APIException("Erro ao salvar usuário.");
 		}
 		return Optional.of(usuarioSalvar);
+	}
+
+	private void verificaUsuariosAtualizaExistente(List<Usuario> usuarios, Usuario usuarioSalvar) {
+		if (ValidationHelpers.collectionNotEmpty(usuarios)) {
+			if (usuarioSalvar.getId() == 0) {
+				usuarioSalvar.setId(usuarios.stream().mapToLong(Usuario::getId).max().getAsLong());
+			}
+			usuarios.stream().filter(usuarioSalvo -> usuarioSalvo.getId() == usuarioSalvar.getId()).findAny()
+					.ifPresentOrElse(usuarioExistente -> usuarioExistente = usuarioSalvar,
+							() -> usuarios.add(usuarioSalvar));
+		} else {
+			if (usuarioSalvar.getId() == 0) {
+				usuarioSalvar.setId(1);
+			}
+			usuarios.add(usuarioSalvar);
+		}
 	}
 
 	public List<Usuario> obtemUsuarios() {

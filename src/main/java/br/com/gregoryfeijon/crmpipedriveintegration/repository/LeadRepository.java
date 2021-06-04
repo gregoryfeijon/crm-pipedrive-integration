@@ -16,6 +16,7 @@ import com.google.gson.Gson;
 import br.com.gregoryfeijon.crmpipedriveintegration.exception.APIException;
 import br.com.gregoryfeijon.crmpipedriveintegration.model.Lead;
 import br.com.gregoryfeijon.crmpipedriveintegration.util.GsonUtil;
+import br.com.gregoryfeijon.crmpipedriveintegration.util.ValidationHelpers;
 
 /**
  * 30/05/2021 às 17:07:28
@@ -35,7 +36,7 @@ public class LeadRepository extends FileRepository<Lead> {
 			if (leadsFile.exists() && leadsFile.canWrite()) {
 				String leadsJson = readFromFile(leadsFile);
 				List<Lead> leads = GSON_UTIL.fromJson(leadsJson, returnType().getType());
-				leads.add(leadSalvar);
+				verificaLeadsAtualizaExistente(leads, leadSalvar);
 				String jsonSalvar = GSON_UTIL.toJson(leads);
 				Files.write(leadsFile.toPath(), jsonSalvar.getBytes("utf-8"), StandardOpenOption.WRITE);
 			}
@@ -43,6 +44,21 @@ public class LeadRepository extends FileRepository<Lead> {
 			throw new APIException("Erro ao salvar usuário.");
 		}
 		return Optional.of(leadSalvar);
+	}
+
+	private void verificaLeadsAtualizaExistente(List<Lead> leads, Lead leadSalvar) {
+		if (ValidationHelpers.collectionNotEmpty(leads)) {
+			if (leadSalvar.getId() == 0) {
+				leadSalvar.setId(leads.stream().mapToLong(Lead::getId).max().getAsLong());
+			}
+			leads.stream().filter(leadSalvo -> leadSalvo.getId() == leadSalvar.getId()).findAny()
+					.ifPresentOrElse(leadExistente -> leadExistente = leadSalvar, () -> leads.add(leadSalvar));
+		} else {
+			if (leadSalvar.getId() == 0) {
+				leadSalvar.setId(1);
+			}
+			leads.add(leadSalvar);
+		}
 	}
 
 	public List<Lead> obtemLeads() {

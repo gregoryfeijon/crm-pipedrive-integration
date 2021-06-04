@@ -17,20 +17,18 @@ import lombok.Data;
  */
 
 @Data
-@Builder
+@Builder(setterPrefix = "with")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Usuario implements Serializable {
 
 	private static final long serialVersionUID = 8660067838083085498L;
-	private static final String NOME_OBRIGATORIO = "É necessário especificar o nome do USUÁRIO!";
-	private static final String EMAIL_OBRIGATORIO = "É necessário especificar o e-mail do USUÁRIO!";
 
 	private long id;
 
-	@NotBlank(message = NOME_OBRIGATORIO)
+	@NotBlank(message = Constants.NOME_OBRIGATORIO_USUARIO)
 	private String nome;
 
-	@Email
-	@NotBlank(message = EMAIL_OBRIGATORIO)
+	@Email(message = Constants.EMAIL_INVALIDO_USUARIO)
+	@NotBlank(message = Constants.EMAIL_OBRIGATORIO_USUARIO)
 	private String email;
 }

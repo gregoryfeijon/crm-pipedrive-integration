@@ -13,6 +13,7 @@ import br.com.gregoryfeijon.crmpipedriveintegration.exception.APIException;
 import br.com.gregoryfeijon.crmpipedriveintegration.model.Usuario;
 import br.com.gregoryfeijon.crmpipedriveintegration.repository.LeadRepository;
 import br.com.gregoryfeijon.crmpipedriveintegration.repository.UsuarioRepository;
+import br.com.gregoryfeijon.crmpipedriveintegration.service.ConsumerFilaLeads;
 
 @SpringBootApplication
 @EnableConfigurationProperties
@@ -27,19 +28,27 @@ public class CrmPipedriveIntegrationApplication {
 		return args -> {
 			criaUsuarioDefault(usuarioRepository);
 			limpaLeads(leadRepository);
+			iniciaThreadLead(usuarioRepository, leadRepository);
 		};
+	}
+
+	private void criaUsuarioDefault(UsuarioRepository usuarioRepository) throws IOException {
+		usuarioRepository.limpaUsuarios();
+		Usuario usuario = Usuario.builder().withId(1).withEmail("usuario@usuario.usuario.br").withNome("Usuário 1")
+				.build();
+		Optional<Usuario> opUsuario = usuarioRepository.salvaUsuario(usuario);
+		if (!opUsuario.isPresent()) {
+			throw new APIException("Não foi possível criar o usuário inicial!");
+		}
 	}
 
 	private void limpaLeads(LeadRepository leadRepository) throws IOException {
 		leadRepository.limpaLeads();
 	}
 
-	private void criaUsuarioDefault(UsuarioRepository usuarioRepository) throws IOException {
-		usuarioRepository.limpaUsuarios();
-		Usuario usuario = Usuario.builder().id(1).email("usuario@usuario.usuario.br").nome("Usuário 1").build();
-		Optional<Usuario> opUsuario = usuarioRepository.salvaUsuario(usuario);
-		if (!opUsuario.isPresent()) {
-			throw new APIException("Não foi possível criar o usuário inicial!");
-		}
+	private void iniciaThreadLead(UsuarioRepository usuarioRepository, LeadRepository leadRepository) {
+		ConsumerFilaLeads consumer = new ConsumerFilaLeads(usuarioRepository, leadRepository);
+		Thread leadQueueManager = new Thread(consumer);
+		leadQueueManager.start();
 	}
 }

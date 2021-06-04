@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -21,22 +22,22 @@ import lombok.Data;
 public class Lead implements Serializable {
 
 	private static final long serialVersionUID = -1850257645513604917L;
-	private static final String NOME_OBRIGATORIO = "É necessário especificar o nome do LEAD!";
-	private static final String EMAIL_OBRIGATORIO = "É necessário especificar o e-mail do LEAD!";
 
 	private long id;
 
-	@NotBlank(message = NOME_OBRIGATORIO)
+	@NotBlank(message = Constants.NOME_OBRIGATORIO_LEAD)
 	private String nome;
 
 	@Email
-	@NotBlank(message = EMAIL_OBRIGATORIO)
+	@NotBlank(message = Constants.EMAIL_OBRIGATORIO_LEAD)
 	private String email;
 
 	private String empresa;
 	private String site;
 	private List<String> telefones;
+
+	@NotNull(message = Constants.STATUS_OBRIGATORIO_LEAD)
 	private Status status = Status.OPEN;
 	private String anotacoes;
-	private long usuarioResponsavelId;
+	private Long usuarioResponsavelId;
 }

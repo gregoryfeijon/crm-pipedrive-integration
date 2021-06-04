@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>br.com.gregoryfeijon</groupId>
 	<artifactId>crm-pipedrive-integration</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<name>crm-pipedrive-integration</name>
 	<description>Projeto de integração para simular o backend de uma aplicação que utiliza o CRM Pipedrive.</description>
 	
@@ -21,6 +21,8 @@
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
 		<maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
+		<maven.compiler.encoding>${project.build.sourceEncoding}</maven.compiler.encoding>
+        <maven.resources.encoding>${project.build.sourceEncoding}</maven.resources.encoding>
 		<jjwt.version>0.11.2</jjwt.version>
 		<io.springfox.version>3.0.0</io.springfox.version>
 	</properties>
@@ -139,11 +141,13 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<configuration>
-						<encoding>UTF-8</encoding>
 						<verbose>true</verbose>
 						<fork>true</fork>
+						<encoding>${project.build.sourceEncoding}</encoding>
 						<executable>${JAVA_11_HOME}/bin/javac</executable>
 						<compilerVersion>1.3</compilerVersion>
+						<source>${java.version}</source>
+                    	<target>${java.version}</target>
 					</configuration>
 				</plugin>
 			</plugins>
