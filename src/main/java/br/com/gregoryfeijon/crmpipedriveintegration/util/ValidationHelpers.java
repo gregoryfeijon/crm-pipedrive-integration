@@ -10,9 +10,7 @@ import java.util.function.Predicate;
 
 /**
  * 
- * 7 de jan de 2020
- * 
- * 
+ * 30/05/2021 às 17:30:28
  * 
  * @author gregory.feijon
  * 
@@ -23,6 +21,7 @@ public final class ValidationHelpers {
 	private ValidationHelpers() {}
 
 	private static Predicate<Collection<?>> predicateCollection;
+	private static Predicate<Map<?, ?>> predicateMap;
 	private static Predicate<Object> predicateIsNull;
 
 	public static boolean collectionEmpty(Collection<?> entities) {
@@ -38,6 +37,21 @@ public final class ValidationHelpers {
 
 	private static void criaPredicateCollectionVazia() {
 		predicateCollection = collection -> collection == null || collection.isEmpty();
+	}
+
+	public static boolean mapEmpty(Map<?, ?> map) {
+		if (predicateMap == null) {
+			criaPredicateMapVazia();
+		}
+		return predicateMap.test(map);
+	}
+
+	public static boolean mapNotEmpty(Map<?, ?> map) {
+		return !mapEmpty(map);
+	}
+
+	private static void criaPredicateMapVazia() {
+		predicateMap = map -> map == null || map.isEmpty();
 	}
 
 	public static boolean isNull(Object entity) {

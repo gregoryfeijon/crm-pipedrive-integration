@@ -11,10 +11,14 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import br.com.gregoryfeijon.crmpipedriveintegration.dto.LeadFinalizaDTO;
+import br.com.gregoryfeijon.crmpipedriveintegration.exception.APIException;
 import br.com.gregoryfeijon.crmpipedriveintegration.model.Lead;
 import br.com.gregoryfeijon.crmpipedriveintegration.model.Status;
 import br.com.gregoryfeijon.crmpipedriveintegration.model.Usuario;
 import br.com.gregoryfeijon.crmpipedriveintegration.repository.LeadRepository;
+import br.com.gregoryfeijon.crmpipedriveintegration.util.LoggerUtil;
+import br.com.gregoryfeijon.crmpipedriveintegration.util.ValidationHelpers;
 
 /**
  * 29/05/2021 às 18:52:19
@@ -24,6 +28,8 @@ import br.com.gregoryfeijon.crmpipedriveintegration.repository.LeadRepository;
 
 @Service
 public class LeadService implements IService<Lead> {
+	
+	private static final LoggerUtil LOG = LoggerUtil.getLog(LeadService.class);
 
 	@Autowired
 	private UsuarioService usuarioService;
@@ -68,8 +74,14 @@ public class LeadService implements IService<Lead> {
 				.collect(Collectors.toList());
 		Map<Long, List<Lead>> mapaUsuarioLeads = listAll().stream().filter(l -> l.getUsuarioResponsavelId() != null)
 				.collect(Collectors.groupingBy(Lead::getUsuarioResponsavelId));
-		atribuiLeadUsuario(usuarios, mapaUsuarioLeads.keySet(), lead);
-		verificaAdicionaLeadFila(mapaUsuarioLeads, lead);
+		if (ValidationHelpers.mapNotEmpty(mapaUsuarioLeads)) {
+			atribuiLeadUsuario(usuarios, mapaUsuarioLeads.keySet(), lead);
+			verificaAdicionaLeadFila(mapaUsuarioLeads, lead);
+		} else {
+			Usuario firstUser = usuarios.stream().findFirst().get();
+			lead.setUsuarioResponsavelId(firstUser.getId());
+		}
+		save(lead);
 	}
 
 	private void atribuiLeadUsuario(List<Usuario> usuarios, Set<Long> idUsuariosComLead, Lead lead) {
@@ -96,6 +108,19 @@ public class LeadService implements IService<Lead> {
 		});
 		if (lead.getUsuarioResponsavelId() == null) {
 			FilaLeads.addLead(lead);
+		}
+	}
+
+	public Optional<Lead> finalizaLead(LeadFinalizaDTO lead) {
+		if (lead.getId() == 0) {
+			throw new APIException("Não é possível encontrar o lead especificado!");
+		}
+		return leadRepository.salvaStatusLead(lead);
+	}
+	
+	public void enviaLeadCrm(Lead leadAux) {
+		if (leadAux.getStatus().equals(Status.LOST)) {
+			LOG.info("Falta integração!");
 		}
 	}
 }

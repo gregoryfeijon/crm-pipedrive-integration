@@ -2,8 +2,7 @@ package br.com.gregoryfeijon.crmpipedriveintegration.repository;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +15,7 @@ import com.google.gson.Gson;
 import br.com.gregoryfeijon.crmpipedriveintegration.exception.APIException;
 import br.com.gregoryfeijon.crmpipedriveintegration.model.Usuario;
 import br.com.gregoryfeijon.crmpipedriveintegration.util.GsonUtil;
+import br.com.gregoryfeijon.crmpipedriveintegration.util.StringUtil;
 import br.com.gregoryfeijon.crmpipedriveintegration.util.ValidationHelpers;
 
 /**
@@ -27,7 +27,7 @@ import br.com.gregoryfeijon.crmpipedriveintegration.util.ValidationHelpers;
 @Repository
 public class UsuarioRepository extends FileRepository<Usuario> {
 
-	private static final String USUARIO_JSON_PATH = "./src/main/resources/usuarios.json";
+	private static final String USUARIO_JSON_PATH = "./src/main/resources/dados/usuarios.json";
 	private static final Gson GSON_UTIL = GsonUtil.getGson();
 
 	public Optional<Usuario> salvaUsuario(Usuario usuarioSalvar) {
@@ -36,9 +36,11 @@ public class UsuarioRepository extends FileRepository<Usuario> {
 			if (usuariosFile.exists() && usuariosFile.canWrite()) {
 				String usuariosJson = readFromFile(usuariosFile);
 				List<Usuario> usuarios = GSON_UTIL.fromJson(usuariosJson, returnType().getType());
-				verificaUsuariosAtualizaExistente(usuarios, usuarioSalvar);
+				usuarios = verificaUsuariosAtualizaExistente(usuarios, usuarioSalvar);
 				String jsonSalvar = GSON_UTIL.toJson(usuarios);
-				Files.write(usuariosFile.toPath(), jsonSalvar.getBytes("utf-8"), StandardOpenOption.WRITE);
+				PrintWriter writer = new PrintWriter(usuariosFile);
+				writer.write(jsonSalvar);
+				writer.close();
 			}
 		} catch (IOException ex) {
 			throw new APIException("Erro ao salvar usuário.");
@@ -46,7 +48,7 @@ public class UsuarioRepository extends FileRepository<Usuario> {
 		return Optional.of(usuarioSalvar);
 	}
 
-	private void verificaUsuariosAtualizaExistente(List<Usuario> usuarios, Usuario usuarioSalvar) {
+	private List<Usuario> verificaUsuariosAtualizaExistente(List<Usuario> usuarios, Usuario usuarioSalvar) {
 		if (ValidationHelpers.collectionNotEmpty(usuarios)) {
 			if (usuarioSalvar.getId() == 0) {
 				usuarioSalvar.setId(usuarios.stream().mapToLong(Usuario::getId).max().getAsLong());
@@ -58,8 +60,15 @@ public class UsuarioRepository extends FileRepository<Usuario> {
 			if (usuarioSalvar.getId() == 0) {
 				usuarioSalvar.setId(1);
 			}
-			usuarios.add(usuarioSalvar);
+			return criaLista(usuarios, usuarioSalvar);
 		}
+		return usuarios;
+	}
+
+	private List<Usuario> criaLista(List<Usuario> usuarios, Usuario usuarioSalvar) {
+		usuarios = new ArrayList<>();
+		usuarios.add(usuarioSalvar);
+		return usuarios;
 	}
 
 	public List<Usuario> obtemUsuarios() {
@@ -68,7 +77,9 @@ public class UsuarioRepository extends FileRepository<Usuario> {
 			File usuariosFile = new File(USUARIO_JSON_PATH);
 			if (usuariosFile.exists() && usuariosFile.canWrite()) {
 				String usuariosJson = readFromFile(usuariosFile);
-				usuarios = GSON_UTIL.fromJson(usuariosJson, returnType().getType());
+				if (StringUtil.isNotNull(usuariosJson)) {
+					usuarios = GSON_UTIL.fromJson(usuariosJson, returnType().getType());
+				}
 			}
 		} catch (IOException ex) {
 			throw new APIException("Erro ao obter usuários.");
@@ -80,8 +91,7 @@ public class UsuarioRepository extends FileRepository<Usuario> {
 		try {
 			File usuariosFile = new File(USUARIO_JSON_PATH);
 			if (usuariosFile.exists() && usuariosFile.canWrite()) {
-				String jsonLimpa = "";
-				Files.write(usuariosFile.toPath(), jsonLimpa.getBytes("utf-8"), StandardOpenOption.CREATE_NEW);
+				new PrintWriter(USUARIO_JSON_PATH).close();
 			}
 		} catch (IOException ex) {
 			throw new APIException("Erro ao limpar usuários.");

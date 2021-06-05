@@ -2,20 +2,22 @@ package br.com.gregoryfeijon.crmpipedriveintegration.repository;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Repository;
 
 import com.google.gson.Gson;
 
+import br.com.gregoryfeijon.crmpipedriveintegration.dto.LeadFinalizaDTO;
 import br.com.gregoryfeijon.crmpipedriveintegration.exception.APIException;
 import br.com.gregoryfeijon.crmpipedriveintegration.model.Lead;
 import br.com.gregoryfeijon.crmpipedriveintegration.util.GsonUtil;
+import br.com.gregoryfeijon.crmpipedriveintegration.util.StringUtil;
 import br.com.gregoryfeijon.crmpipedriveintegration.util.ValidationHelpers;
 
 /**
@@ -27,7 +29,7 @@ import br.com.gregoryfeijon.crmpipedriveintegration.util.ValidationHelpers;
 @Repository
 public class LeadRepository extends FileRepository<Lead> {
 
-	private static final String USUARIO_JSON_PATH = "./src/main/resources/leads.json";
+	private static final String USUARIO_JSON_PATH = "./src/main/resources/dados/leads.json";
 	private static final Gson GSON_UTIL = GsonUtil.getGson();
 
 	public Optional<Lead> salvaLead(Lead leadSalvar) {
@@ -36,9 +38,11 @@ public class LeadRepository extends FileRepository<Lead> {
 			if (leadsFile.exists() && leadsFile.canWrite()) {
 				String leadsJson = readFromFile(leadsFile);
 				List<Lead> leads = GSON_UTIL.fromJson(leadsJson, returnType().getType());
-				verificaLeadsAtualizaExistente(leads, leadSalvar);
+				leads = verificaLeadsAtualizaExistente(leads, leadSalvar);
 				String jsonSalvar = GSON_UTIL.toJson(leads);
-				Files.write(leadsFile.toPath(), jsonSalvar.getBytes("utf-8"), StandardOpenOption.WRITE);
+				PrintWriter writer = new PrintWriter(leadsFile);
+				writer.write(jsonSalvar);
+				writer.close();
 			}
 		} catch (IOException ex) {
 			throw new APIException("Erro ao salvar usuário.");
@@ -46,19 +50,47 @@ public class LeadRepository extends FileRepository<Lead> {
 		return Optional.of(leadSalvar);
 	}
 
-	private void verificaLeadsAtualizaExistente(List<Lead> leads, Lead leadSalvar) {
+	private List<Lead> verificaLeadsAtualizaExistente(List<Lead> leads, Lead leadSalvar) {
 		if (ValidationHelpers.collectionNotEmpty(leads)) {
 			if (leadSalvar.getId() == 0) {
-				leadSalvar.setId(leads.stream().mapToLong(Lead::getId).max().getAsLong());
+				long maxId = leads.stream().mapToLong(Lead::getId).max().getAsLong();
+				leadSalvar.setId(maxId + 1);
 			}
-			leads.stream().filter(leadSalvo -> leadSalvo.getId() == leadSalvar.getId()).findAny()
-					.ifPresentOrElse(leadExistente -> leadExistente = leadSalvar, () -> leads.add(leadSalvar));
+			Optional<Lead> opLead = leads.stream().filter(leadSalvo -> leadSalvo.getId() == leadSalvar.getId())
+					.findAny();
+			if (opLead.isPresent()) {
+				leads = leads.stream().map(lead -> lead.getId() == leadSalvar.getId() ? leadSalvar : lead).collect(Collectors.toList());
+			} else {
+				leads.add(leadSalvar);
+			}
 		} else {
 			if (leadSalvar.getId() == 0) {
 				leadSalvar.setId(1);
 			}
-			leads.add(leadSalvar);
+			return criaLista(leads, leadSalvar);
 		}
+		return leads;
+	}
+
+	private List<Lead> criaLista(List<Lead> leads, Lead leadSalvar) {
+		leads = new ArrayList<>();
+		leads.add(leadSalvar);
+		return leads;
+	}
+	
+	public Optional<Lead> salvaStatusLead(LeadFinalizaDTO leadFinalizaDTO) {
+		return salvaStatusLead(new Lead(leadFinalizaDTO));
+	}
+	
+	public Optional<Lead> salvaStatusLead(Lead lead) {
+		List<Lead> leads = obtemLeads();
+		Optional<Lead> opLeadAlterar = leads.stream().filter(leadSalvo -> leadSalvo.getId() == leadSalvo.getId())
+				.findFirst();
+		if (!opLeadAlterar.isPresent()) {
+			throw new APIException("Não foi possível encontrar o lead especificado!");
+		}
+		opLeadAlterar.get().setStatus(lead.getStatus());
+		return salvaLead(opLeadAlterar.get());
 	}
 
 	public List<Lead> obtemLeads() {
@@ -67,7 +99,9 @@ public class LeadRepository extends FileRepository<Lead> {
 			File leadsFile = new File(USUARIO_JSON_PATH);
 			if (leadsFile.exists() && leadsFile.canWrite()) {
 				String leadsJson = readFromFile(leadsFile);
-				leads = GSON_UTIL.fromJson(leadsJson, returnType().getType());
+				if (StringUtil.isNotNull(leadsJson)) {
+					leads = GSON_UTIL.fromJson(leadsJson, returnType().getType());
+				}
 			}
 		} catch (IOException ex) {
 			throw new APIException("Erro ao obter usuários.");
@@ -79,8 +113,7 @@ public class LeadRepository extends FileRepository<Lead> {
 		try {
 			File leadsFile = new File(USUARIO_JSON_PATH);
 			if (leadsFile.exists() && leadsFile.canWrite()) {
-				String jsonLimpa = "";
-				Files.write(leadsFile.toPath(), jsonLimpa.getBytes("utf-8"), StandardOpenOption.CREATE_NEW);
+				new PrintWriter(USUARIO_JSON_PATH).close();
 			}
 		} catch (IOException ex) {
 			throw new APIException("Erro ao limpar usuários.");

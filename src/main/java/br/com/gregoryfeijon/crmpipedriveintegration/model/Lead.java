@@ -9,7 +9,9 @@ import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import br.com.gregoryfeijon.crmpipedriveintegration.dto.LeadFinalizaDTO;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 27/05/2021 às 21:22:36
@@ -18,6 +20,7 @@ import lombok.Data;
  */
 
 @Data
+@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Lead implements Serializable {
 
@@ -40,4 +43,9 @@ public class Lead implements Serializable {
 	private Status status = Status.OPEN;
 	private String anotacoes;
 	private Long usuarioResponsavelId;
+	
+	public Lead(LeadFinalizaDTO leadFinalizaDTO) {
+		this.id = leadFinalizaDTO.getId();
+		this.status = leadFinalizaDTO.getStatus();
+	}
 }

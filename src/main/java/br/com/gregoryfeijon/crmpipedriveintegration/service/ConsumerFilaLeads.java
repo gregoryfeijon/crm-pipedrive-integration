@@ -13,6 +13,7 @@ import br.com.gregoryfeijon.crmpipedriveintegration.model.Usuario;
 import br.com.gregoryfeijon.crmpipedriveintegration.repository.LeadRepository;
 import br.com.gregoryfeijon.crmpipedriveintegration.repository.UsuarioRepository;
 import br.com.gregoryfeijon.crmpipedriveintegration.util.LoggerUtil;
+import br.com.gregoryfeijon.crmpipedriveintegration.util.ValidationHelpers;
 
 /**
  * 03/06/2021 às 21:07:24
@@ -40,17 +41,25 @@ public class ConsumerFilaLeads implements Runnable {
 			Map<Long, List<Lead>> mapaUsuarioLeads = leadRepository.obtemLeads().stream()
 					.filter(l -> l.getUsuarioResponsavelId() != null)
 					.collect(Collectors.groupingBy(Lead::getUsuarioResponsavelId));
-			Long usuarioId = obtemUsuarioSemLead(usuarios, mapaUsuarioLeads.keySet());
-			if (usuarioId == null) {
-				verificaUsuarioSemLeadEmAberto(mapaUsuarioLeads);
+			if (ValidationHelpers.mapNotEmpty(mapaUsuarioLeads)) {
+				Long usuarioId = obtemUsuarioSemLead(usuarios, mapaUsuarioLeads.keySet());
+				if (usuarioId == null) {
+					usuarioId = verificaUsuarioSemLeadEmAberto(mapaUsuarioLeads);
+				}
+				atribuiLeadAoUsuario(usuarioId);
+				setObjectsToNull(usuarios, usuarioId, mapaUsuarioLeads);
 			}
-			atribuiLeadAoUsuario(usuarioId);
-			setObjectsToNull(usuarios, usuarioId, mapaUsuarioLeads);
-			try {
-				wait(1000);
-			} catch (InterruptedException e) {
-				LOG.severe("Interrupção inesperada da Thread!");
+			timeout(5000);
+		}
+	}
+
+	private void timeout(int time) {
+		try {
+			synchronized (this) {
+				wait(time);
 			}
+		} catch (InterruptedException e) {
+			LOG.severe("Interrupção inesperada da Thread!");
 		}
 	}
 
@@ -86,10 +95,9 @@ public class ConsumerFilaLeads implements Runnable {
 		if (usuarioId != null) {
 			Lead nextLead = FilaLeads.getLead();
 			nextLead.setUsuarioResponsavelId(usuarioId);
-			Optional<Lead> opLeadSalvo = leadRepository.salvaLead(nextLead);
-			if (!opLeadSalvo.isPresent()) {
-				LOG.severe("Erro ao atribuir lead a um usuário (através da THREAD!!)");
-			}
+			leadRepository.salvaLead(nextLead).ifPresentOrElse(
+					lead -> LOG.info("Usuário {0} agora é responsável pelo Lead: {1}", usuarioId, lead),
+					() -> LOG.severe("Erro ao atribuir lead a um usuário (através da THREAD!!)"));
 		}
 	}
 

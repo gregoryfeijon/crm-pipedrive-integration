@@ -50,4 +50,8 @@ public final class StringUtil {
 	public static boolean isNull(String string) {
 		return string == null || string.trim().equals("");
 	}
+	
+	public static boolean isNotNull(String string) {
+		return !isNull(string);
+	}
 }
