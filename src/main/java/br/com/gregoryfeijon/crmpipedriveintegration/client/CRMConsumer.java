@@ -1,5 +1,6 @@
 package br.com.gregoryfeijon.crmpipedriveintegration.client;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -11,5 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CRMConsumer {
 
+	@Autowired
+	private PipedriveConsumer pipedriveConsumer;
 	
 }

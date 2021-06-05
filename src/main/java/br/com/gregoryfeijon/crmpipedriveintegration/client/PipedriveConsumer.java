@@ -18,14 +18,16 @@ import br.com.gregoryfeijon.crmpipedriveintegration.properties.PipedriveProperti
 @RestController
 public class PipedriveConsumer extends PipedriveAPIClient<PipedriveDTO> {
 	
+	private final String pipedriveKey;
 	
 	public PipedriveConsumer(PipedriveProperties pipedriveProperties) {
 		this.basePath = pipedriveProperties.getBaseUrl();
+		this.pipedriveKey = pipedriveProperties.getKey();
 	}
 
 	@Override
 	public Optional<PipedriveDTO> sendDeal(PipedriveDTO entity) {
-		// TODO Auto-generated method stub
+		//NA URL, MONTAR BASEPATH + CAMINHO ESPECIFICO + KEY COMO ARGUMENTO API_TOKEN
 		return null;
 	}
 
