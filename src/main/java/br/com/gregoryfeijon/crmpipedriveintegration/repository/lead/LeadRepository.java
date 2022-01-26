@@ -1,5 +1,16 @@
 package br.com.gregoryfeijon.crmpipedriveintegration.repository.lead;
 
+import br.com.gregoryfeijon.crmpipedriveintegration.dto.LeadFinalizaDTO;
+import br.com.gregoryfeijon.crmpipedriveintegration.exception.APIException;
+import br.com.gregoryfeijon.crmpipedriveintegration.model.Lead;
+import br.com.gregoryfeijon.crmpipedriveintegration.repository.FileRepository;
+import br.com.gregoryfeijon.crmpipedriveintegration.util.GsonUtil;
+import br.com.gregoryfeijon.crmpipedriveintegration.util.StringUtil;
+import br.com.gregoryfeijon.crmpipedriveintegration.util.ValidationHelpers;
+import com.google.gson.Gson;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.stereotype.Repository;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -7,19 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import br.com.gregoryfeijon.crmpipedriveintegration.repository.FileRepository;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.stereotype.Repository;
-
-import com.google.gson.Gson;
-
-import br.com.gregoryfeijon.crmpipedriveintegration.dto.LeadFinalizaDTO;
-import br.com.gregoryfeijon.crmpipedriveintegration.exception.APIException;
-import br.com.gregoryfeijon.crmpipedriveintegration.model.Lead;
-import br.com.gregoryfeijon.crmpipedriveintegration.util.GsonUtil;
-import br.com.gregoryfeijon.crmpipedriveintegration.util.StringUtil;
-import br.com.gregoryfeijon.crmpipedriveintegration.util.ValidationHelpers;
 
 /**
  * 30/05/2021 às 17:07:28

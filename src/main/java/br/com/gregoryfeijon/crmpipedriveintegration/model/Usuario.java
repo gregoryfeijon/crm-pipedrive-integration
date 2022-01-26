@@ -1,14 +1,12 @@
 package br.com.gregoryfeijon.crmpipedriveintegration.model;
 
-import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Builder;
+import lombok.Data;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import lombok.Builder;
-import lombok.Data;
+import java.io.Serializable;
 
 /**
  * 27/05/2021 às 21:22:42

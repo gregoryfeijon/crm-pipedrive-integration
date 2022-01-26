@@ -2,6 +2,7 @@ package br.com.gregoryfeijon.crmpipedriveintegration;
 
 import br.com.gregoryfeijon.crmpipedriveintegration.exception.APIException;
 import br.com.gregoryfeijon.crmpipedriveintegration.model.Usuario;
+import br.com.gregoryfeijon.crmpipedriveintegration.properties.QueueProperties;
 import br.com.gregoryfeijon.crmpipedriveintegration.repository.lead.ILeadRepository;
 import br.com.gregoryfeijon.crmpipedriveintegration.repository.usuario.IUsuarioRepository;
 import br.com.gregoryfeijon.crmpipedriveintegration.service.lead.queue.ConsumerFilaLeads;
@@ -23,11 +24,11 @@ public class CrmPipedriveIntegrationApplication {
 	}
 
 	@Bean
-	CommandLineRunner initRepos(IUsuarioRepository usuarioRepository, ILeadRepository leadRepository) {
+	CommandLineRunner initRepos(IUsuarioRepository usuarioRepository, ILeadRepository leadRepository, QueueProperties queueProperties) {
 		return args -> {
 			criaUsuarioDefault(usuarioRepository);
 			limpaLeads(leadRepository);
-			iniciaThreadLead(usuarioRepository, leadRepository);
+			iniciaThreadLead(usuarioRepository, leadRepository, queueProperties);
 		};
 	}
 
@@ -45,8 +46,8 @@ public class CrmPipedriveIntegrationApplication {
 		leadRepository.deleteAll();
 	}
 
-	private void iniciaThreadLead(IUsuarioRepository usuarioRepository, ILeadRepository leadRepository) {
-		ConsumerFilaLeads consumer = new ConsumerFilaLeads(usuarioRepository, leadRepository);
+	private void iniciaThreadLead(IUsuarioRepository usuarioRepository, ILeadRepository leadRepository, QueueProperties queueProperties) {
+		ConsumerFilaLeads consumer = new ConsumerFilaLeads(usuarioRepository, leadRepository, queueProperties);
 		Thread leadQueueManager = new Thread(consumer);
 		leadQueueManager.start();
 	}

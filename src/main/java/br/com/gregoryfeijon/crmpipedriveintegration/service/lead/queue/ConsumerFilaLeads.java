@@ -3,6 +3,7 @@ package br.com.gregoryfeijon.crmpipedriveintegration.service.lead.queue;
 import br.com.gregoryfeijon.crmpipedriveintegration.model.Lead;
 import br.com.gregoryfeijon.crmpipedriveintegration.model.Status;
 import br.com.gregoryfeijon.crmpipedriveintegration.model.Usuario;
+import br.com.gregoryfeijon.crmpipedriveintegration.properties.QueueProperties;
 import br.com.gregoryfeijon.crmpipedriveintegration.repository.lead.ILeadRepository;
 import br.com.gregoryfeijon.crmpipedriveintegration.repository.usuario.IUsuarioRepository;
 import br.com.gregoryfeijon.crmpipedriveintegration.util.LoggerUtil;
@@ -24,11 +25,14 @@ public class ConsumerFilaLeads implements Runnable {
 
 	private final IUsuarioRepository usuarioRepository;
 	private final ILeadRepository leadRepository;
+	private final int THREAD_TIMEOUT;
+
 
 	@Autowired
-	public ConsumerFilaLeads(IUsuarioRepository usuarioRepository, ILeadRepository leadRepository) {
+	public ConsumerFilaLeads(IUsuarioRepository usuarioRepository, ILeadRepository leadRepository, QueueProperties queueProperties) {
 		this.usuarioRepository = usuarioRepository;
 		this.leadRepository = leadRepository;
+		this.THREAD_TIMEOUT = queueProperties.getLeadQueueTimeout();
 	}
 
 	@Override
@@ -47,7 +51,7 @@ public class ConsumerFilaLeads implements Runnable {
 				atribuiLeadAoUsuario(usuarioId);
 				setObjectsToNull(usuarios, usuarioId, mapaUsuarioLeads);
 			}
-			timeout(5000);
+			timeout(THREAD_TIMEOUT);
 		}
 	}
 

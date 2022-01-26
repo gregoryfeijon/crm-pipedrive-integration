@@ -1,8 +1,8 @@
 package br.com.gregoryfeijon.crmpipedriveintegration.security.config;
 
-import java.nio.file.AccessDeniedException;
-import java.util.List;
-
+import br.com.gregoryfeijon.crmpipedriveintegration.api.response.Response;
+import br.com.gregoryfeijon.crmpipedriveintegration.exception.APIException;
+import br.com.gregoryfeijon.crmpipedriveintegration.util.ApiUtil;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +13,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import br.com.gregoryfeijon.crmpipedriveintegration.api.response.Response;
-import br.com.gregoryfeijon.crmpipedriveintegration.exception.APIException;
-import br.com.gregoryfeijon.crmpipedriveintegration.util.ApiUtil;
+import java.nio.file.AccessDeniedException;
+import java.util.List;
 
 /**
  * 26/05/2021 às 23:47:04

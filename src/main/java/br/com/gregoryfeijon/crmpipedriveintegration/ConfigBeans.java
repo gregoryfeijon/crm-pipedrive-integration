@@ -3,6 +3,7 @@ package br.com.gregoryfeijon.crmpipedriveintegration;
 import br.com.gregoryfeijon.crmpipedriveintegration.model.Lead;
 import br.com.gregoryfeijon.crmpipedriveintegration.model.Usuario;
 import br.com.gregoryfeijon.crmpipedriveintegration.properties.PipedriveProperties;
+import br.com.gregoryfeijon.crmpipedriveintegration.properties.QueueProperties;
 import br.com.gregoryfeijon.crmpipedriveintegration.repository.lead.ILeadRepository;
 import br.com.gregoryfeijon.crmpipedriveintegration.repository.lead.LeadRepository;
 import br.com.gregoryfeijon.crmpipedriveintegration.repository.usuario.IUsuarioRepository;
@@ -54,6 +55,12 @@ public class ConfigBeans {
 	@ConfigurationProperties(prefix = "pipedrive-prop")
 	public PipedriveProperties pipedriveProperties() {
 		return new PipedriveProperties();
+	}
+
+	@Bean
+	@ConfigurationProperties(prefix = "queue-prop")
+	public QueueProperties queueProperties() {
+		return new QueueProperties();
 	}
 
 	@Bean

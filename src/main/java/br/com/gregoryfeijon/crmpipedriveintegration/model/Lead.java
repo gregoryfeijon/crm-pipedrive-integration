@@ -1,17 +1,15 @@
 package br.com.gregoryfeijon.crmpipedriveintegration.model;
 
-import java.io.Serializable;
-import java.util.List;
+import br.com.gregoryfeijon.crmpipedriveintegration.dto.LeadFinalizaDTO;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import br.com.gregoryfeijon.crmpipedriveintegration.dto.LeadFinalizaDTO;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * 27/05/2021 às 21:22:36

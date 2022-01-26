@@ -1,11 +1,11 @@
 package br.com.gregoryfeijon.crmpipedriveintegration.repository;
 
+import org.springframework.core.ParameterizedTypeReference;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
-
-import org.springframework.core.ParameterizedTypeReference;
 
 /**
 30/05/2021 às 17:21:43

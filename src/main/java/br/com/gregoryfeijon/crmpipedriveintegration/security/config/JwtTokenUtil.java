@@ -1,21 +1,19 @@
 package br.com.gregoryfeijon.crmpipedriveintegration.security.config;
 
+import br.com.gregoryfeijon.crmpipedriveintegration.security.properties.JwtProperties;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.spec.SecretKeySpec;
 import java.io.Serializable;
 import java.security.Key;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.function.Function;
-
-import javax.crypto.spec.SecretKeySpec;
-
-import br.com.gregoryfeijon.crmpipedriveintegration.security.properties.JwtProperties;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 
 /**
  * 26/05/2021 às 23:51:04

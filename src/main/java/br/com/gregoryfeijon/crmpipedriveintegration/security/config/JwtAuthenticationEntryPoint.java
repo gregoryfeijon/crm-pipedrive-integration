@@ -1,15 +1,14 @@
 package br.com.gregoryfeijon.crmpipedriveintegration.security.config;
 
-import java.io.IOException;
-import java.io.Serializable;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.stereotype.Component;
+import java.io.IOException;
+import java.io.Serializable;
 
 /**
  * 26/05/2021 às 23:48:30
