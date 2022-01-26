@@ -15,7 +15,7 @@ import br.com.gregoryfeijon.crmpipedriveintegration.util.LoggerUtil;
 @RestAPIController("lead")
 public abstract class LeadAPIController {
 
-	protected static final LoggerUtil LOG = LoggerUtil.getLog(LeadAPIController.class);
+	private static final LoggerUtil LOG = LoggerUtil.getLog(LeadAPIController.class);
 
 	@Autowired
 	protected LeadService leadService;
