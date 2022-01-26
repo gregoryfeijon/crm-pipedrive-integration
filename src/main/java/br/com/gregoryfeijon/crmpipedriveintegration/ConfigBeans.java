@@ -1,6 +1,12 @@
 package br.com.gregoryfeijon.crmpipedriveintegration;
 
+import br.com.gregoryfeijon.crmpipedriveintegration.model.Lead;
+import br.com.gregoryfeijon.crmpipedriveintegration.model.Usuario;
 import br.com.gregoryfeijon.crmpipedriveintegration.properties.PipedriveProperties;
+import br.com.gregoryfeijon.crmpipedriveintegration.repository.lead.ILeadRepository;
+import br.com.gregoryfeijon.crmpipedriveintegration.repository.lead.LeadRepository;
+import br.com.gregoryfeijon.crmpipedriveintegration.repository.usuario.IUsuarioRepository;
+import br.com.gregoryfeijon.crmpipedriveintegration.repository.usuario.UsuarioRepository;
 import br.com.gregoryfeijon.crmpipedriveintegration.security.properties.JwtProperties;
 import br.com.gregoryfeijon.crmpipedriveintegration.util.RestTemplateResponseErrorHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,5 +54,15 @@ public class ConfigBeans {
 	@ConfigurationProperties(prefix = "pipedrive-prop")
 	public PipedriveProperties pipedriveProperties() {
 		return new PipedriveProperties();
+	}
+
+	@Bean
+	public IUsuarioRepository usuarioRepository() {
+		return new UsuarioRepository();
+	}
+
+	@Bean
+	public ILeadRepository iLeadRepository() {
+		return new LeadRepository();
 	}
 }

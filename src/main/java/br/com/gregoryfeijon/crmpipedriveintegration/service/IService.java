@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface IService<T> {
 
-	public Optional<T> save(T entity);
+	Optional<T> save(T entity);
 
-	public List<T> listAll();
+	List<T> listAll();
 }

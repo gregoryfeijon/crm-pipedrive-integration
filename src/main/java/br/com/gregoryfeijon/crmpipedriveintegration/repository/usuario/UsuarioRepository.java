@@ -1,4 +1,4 @@
-package br.com.gregoryfeijon.crmpipedriveintegration.repository;
+package br.com.gregoryfeijon.crmpipedriveintegration.repository.usuario;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import br.com.gregoryfeijon.crmpipedriveintegration.repository.FileRepository;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Repository;
 
@@ -25,12 +26,13 @@ import br.com.gregoryfeijon.crmpipedriveintegration.util.ValidationHelpers;
  */
 
 @Repository
-public class UsuarioRepository extends FileRepository<Usuario> {
+public class UsuarioRepository extends FileRepository<Usuario> implements IUsuarioRepository {
 
 	private static final String USUARIO_JSON_PATH = "./src/main/resources/dados/usuarios.json";
 	private static final Gson GSON_UTIL = GsonUtil.getGson();
 
-	public Optional<Usuario> salvaUsuario(Usuario usuarioSalvar) {
+	@Override
+	public Optional<Usuario> save(Usuario usuarioSalvar) {
 		try {
 			File usuariosFile = new File(USUARIO_JSON_PATH);
 			if (usuariosFile.exists() && usuariosFile.canWrite()) {
@@ -71,7 +73,8 @@ public class UsuarioRepository extends FileRepository<Usuario> {
 		return usuarios;
 	}
 
-	public List<Usuario> obtemUsuarios() {
+	@Override
+	public List listAll() {
 		List<Usuario> usuarios = new ArrayList<>();
 		try {
 			File usuariosFile = new File(USUARIO_JSON_PATH);
@@ -87,7 +90,8 @@ public class UsuarioRepository extends FileRepository<Usuario> {
 		return usuarios;
 	}
 
-	public void limpaUsuarios() {
+	@Override
+	public void deleteAll() {
 		try {
 			File usuariosFile = new File(USUARIO_JSON_PATH);
 			if (usuariosFile.exists() && usuariosFile.canWrite()) {

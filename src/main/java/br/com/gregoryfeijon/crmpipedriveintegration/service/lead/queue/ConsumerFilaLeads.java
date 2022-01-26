@@ -1,19 +1,16 @@
-package br.com.gregoryfeijon.crmpipedriveintegration.service;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+package br.com.gregoryfeijon.crmpipedriveintegration.service.lead.queue;
 
 import br.com.gregoryfeijon.crmpipedriveintegration.model.Lead;
 import br.com.gregoryfeijon.crmpipedriveintegration.model.Status;
 import br.com.gregoryfeijon.crmpipedriveintegration.model.Usuario;
-import br.com.gregoryfeijon.crmpipedriveintegration.repository.LeadRepository;
-import br.com.gregoryfeijon.crmpipedriveintegration.repository.UsuarioRepository;
+import br.com.gregoryfeijon.crmpipedriveintegration.repository.lead.ILeadRepository;
+import br.com.gregoryfeijon.crmpipedriveintegration.repository.usuario.IUsuarioRepository;
 import br.com.gregoryfeijon.crmpipedriveintegration.util.LoggerUtil;
 import br.com.gregoryfeijon.crmpipedriveintegration.util.ValidationHelpers;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 03/06/2021 às 21:07:24
@@ -25,10 +22,11 @@ public class ConsumerFilaLeads implements Runnable {
 
 	private static final LoggerUtil LOG = LoggerUtil.getLog(ConsumerFilaLeads.class);
 
-	private final UsuarioRepository usuarioRepository;
-	private final LeadRepository leadRepository;
+	private final IUsuarioRepository usuarioRepository;
+	private final ILeadRepository leadRepository;
 
-	public ConsumerFilaLeads(UsuarioRepository usuarioRepository, LeadRepository leadRepository) {
+	@Autowired
+	public ConsumerFilaLeads(IUsuarioRepository usuarioRepository, ILeadRepository leadRepository) {
 		this.usuarioRepository = usuarioRepository;
 		this.leadRepository = leadRepository;
 	}
@@ -36,9 +34,9 @@ public class ConsumerFilaLeads implements Runnable {
 	@Override
 	public void run() {
 		while (!Thread.currentThread().isInterrupted()) {
-			List<Usuario> usuarios = usuarioRepository.obtemUsuarios().stream()
+			List<Usuario> usuarios = usuarioRepository.listAll().stream()
 					.sorted(Comparator.comparing(Usuario::getId)).collect(Collectors.toList());
-			Map<Long, List<Lead>> mapaUsuarioLeads = leadRepository.obtemLeads().stream()
+			Map<Long, List<Lead>> mapaUsuarioLeads = leadRepository.listAll().stream()
 					.filter(l -> l.getUsuarioResponsavelId() != null)
 					.collect(Collectors.groupingBy(Lead::getUsuarioResponsavelId));
 			if (ValidationHelpers.mapNotEmpty(mapaUsuarioLeads)) {
@@ -95,7 +93,7 @@ public class ConsumerFilaLeads implements Runnable {
 		if (usuarioId != null) {
 			Lead nextLead = FilaLeads.getLead();
 			nextLead.setUsuarioResponsavelId(usuarioId);
-			leadRepository.salvaLead(nextLead).ifPresentOrElse(
+			leadRepository.save(nextLead).ifPresentOrElse(
 					lead -> LOG.info("Usuário {0} agora é responsável pelo Lead: {1}", usuarioId, lead),
 					() -> LOG.severe("Erro ao atribuir lead a um usuário (através da THREAD!!)"));
 		}

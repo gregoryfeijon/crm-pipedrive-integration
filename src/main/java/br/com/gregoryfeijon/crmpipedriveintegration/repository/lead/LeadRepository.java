@@ -1,4 +1,4 @@
-package br.com.gregoryfeijon.crmpipedriveintegration.repository;
+package br.com.gregoryfeijon.crmpipedriveintegration.repository.lead;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import br.com.gregoryfeijon.crmpipedriveintegration.repository.FileRepository;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Repository;
 
@@ -27,12 +28,13 @@ import br.com.gregoryfeijon.crmpipedriveintegration.util.ValidationHelpers;
  */
 
 @Repository
-public class LeadRepository extends FileRepository<Lead> {
+public class LeadRepository extends FileRepository<Lead> implements ILeadRepository {
 
 	private static final String USUARIO_JSON_PATH = "./src/main/resources/dados/leads.json";
 	private static final Gson GSON_UTIL = GsonUtil.getGson();
 
-	public Optional<Lead> salvaLead(Lead leadSalvar) {
+	@Override
+	public Optional<Lead> save(Lead leadSalvar) {
 		try {
 			File leadsFile = new File(USUARIO_JSON_PATH);
 			if (leadsFile.exists() && leadsFile.canWrite()) {
@@ -78,22 +80,24 @@ public class LeadRepository extends FileRepository<Lead> {
 		return leads;
 	}
 	
-	public Optional<Lead> salvaStatusLead(LeadFinalizaDTO leadFinalizaDTO) {
-		return salvaStatusLead(new Lead(leadFinalizaDTO));
+	public Optional<Lead> saveLeadStatus(LeadFinalizaDTO leadFinalizaDTO) {
+		return saveLeadStatus(new Lead(leadFinalizaDTO));
 	}
-	
-	public Optional<Lead> salvaStatusLead(Lead lead) {
-		List<Lead> leads = obtemLeads();
+
+	@Override
+	public Optional<Lead> saveLeadStatus(Lead lead) {
+		List<Lead> leads = listAll();
 		Optional<Lead> opLeadAlterar = leads.stream().filter(leadSalvo -> leadSalvo.getId() == leadSalvo.getId())
 				.findFirst();
 		if (!opLeadAlterar.isPresent()) {
 			throw new APIException("Não foi possível encontrar o lead especificado!");
 		}
 		opLeadAlterar.get().setStatus(lead.getStatus());
-		return salvaLead(opLeadAlterar.get());
+		return save(opLeadAlterar.get());
 	}
 
-	public List<Lead> obtemLeads() {
+	@Override
+	public List<Lead> listAll() {
 		List<Lead> leads = new ArrayList<>();
 		try {
 			File leadsFile = new File(USUARIO_JSON_PATH);
@@ -109,7 +113,8 @@ public class LeadRepository extends FileRepository<Lead> {
 		return leads;
 	}
 
-	public void limpaLeads() {
+	@Override
+	public void deleteAll() {
 		try {
 			File leadsFile = new File(USUARIO_JSON_PATH);
 			if (leadsFile.exists() && leadsFile.canWrite()) {

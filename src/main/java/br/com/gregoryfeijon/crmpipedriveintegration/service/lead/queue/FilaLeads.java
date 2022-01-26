@@ -1,13 +1,12 @@
-package br.com.gregoryfeijon.crmpipedriveintegration.service;
-
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import javax.validation.constraints.NotNull;
+package br.com.gregoryfeijon.crmpipedriveintegration.service.lead.queue;
 
 import br.com.gregoryfeijon.crmpipedriveintegration.exception.APIException;
 import br.com.gregoryfeijon.crmpipedriveintegration.model.Lead;
 import br.com.gregoryfeijon.crmpipedriveintegration.util.LoggerUtil;
+
+import javax.validation.constraints.NotNull;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 02/06/2021 às 23:36:22

@@ -1,24 +1,21 @@
-package br.com.gregoryfeijon.crmpipedriveintegration.service;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+package br.com.gregoryfeijon.crmpipedriveintegration.service.lead;
 
 import br.com.gregoryfeijon.crmpipedriveintegration.dto.LeadFinalizaDTO;
 import br.com.gregoryfeijon.crmpipedriveintegration.exception.APIException;
 import br.com.gregoryfeijon.crmpipedriveintegration.model.Lead;
 import br.com.gregoryfeijon.crmpipedriveintegration.model.Status;
 import br.com.gregoryfeijon.crmpipedriveintegration.model.Usuario;
-import br.com.gregoryfeijon.crmpipedriveintegration.repository.LeadRepository;
+import br.com.gregoryfeijon.crmpipedriveintegration.repository.lead.ILeadRepository;
+import br.com.gregoryfeijon.crmpipedriveintegration.service.IService;
+import br.com.gregoryfeijon.crmpipedriveintegration.service.lead.queue.FilaLeads;
+import br.com.gregoryfeijon.crmpipedriveintegration.service.usuario.ListAllUsuariosService;
 import br.com.gregoryfeijon.crmpipedriveintegration.util.LoggerUtil;
 import br.com.gregoryfeijon.crmpipedriveintegration.util.ValidationHelpers;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 29/05/2021 às 18:52:19
@@ -31,20 +28,23 @@ public class LeadService implements IService<Lead> {
 	
 	private static final LoggerUtil LOG = LoggerUtil.getLog(LeadService.class);
 
-	@Autowired
-	private UsuarioService usuarioService;
+	private final ListAllUsuariosService listUsuarioService;
+	private final ILeadRepository leadRepository;
 
 	@Autowired
-	private LeadRepository leadRepository;
+	public LeadService(ListAllUsuariosService listUsuarioService, ILeadRepository leadRepository) {
+		this.listUsuarioService = listUsuarioService;
+		this.leadRepository = leadRepository;
+	}
 
 	@Override
 	public Optional<Lead> save(Lead lead) {
-		return leadRepository.salvaLead(lead);
+		return leadRepository.save(lead);
 	}
 
 	@Override
 	public List<Lead> listAll() {
-		return leadRepository.obtemLeads();
+		return leadRepository.listAll();
 	}
 
 	public Optional<Lead> findLeadByEmail(Lead lead) {
@@ -70,7 +70,7 @@ public class LeadService implements IService<Lead> {
 	}
 
 	public void verificaUsuarioDisponivel(Lead lead) {
-		List<Usuario> usuarios = usuarioService.listAll().stream().sorted(Comparator.comparing(Usuario::getId))
+		List<Usuario> usuarios = listUsuarioService.listAll().stream().sorted(Comparator.comparing(Usuario::getId))
 				.collect(Collectors.toList());
 		Map<Long, List<Lead>> mapaUsuarioLeads = listAll().stream().filter(l -> l.getUsuarioResponsavelId() != null)
 				.collect(Collectors.groupingBy(Lead::getUsuarioResponsavelId));
@@ -115,7 +115,7 @@ public class LeadService implements IService<Lead> {
 		if (lead.getId() == 0) {
 			throw new APIException("Não é possível encontrar o lead especificado!");
 		}
-		return leadRepository.salvaStatusLead(lead);
+		return leadRepository.saveLeadStatus(lead);
 	}
 	
 	public void enviaLeadCrm(Lead leadAux) {
